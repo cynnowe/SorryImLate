@@ -102,9 +102,10 @@ export async function parseExcelFile(file: File): Promise<ProcessedRecord[]> {
     let arrivalTime: string | undefined = undefined;
 
     const withTime = rows.find(r => typeof r.heureArrivee === 'string');
-    if (withTime && withTime.heureArrivee) {
-      arrivalTime = withTime.heureArrivee;
-      const hour = parseInt(arrivalTime.split(':')[0]);
+    if (withTime && typeof withTime.heureArrivee === 'string') {
+      const timeStr = withTime.heureArrivee;
+      arrivalTime = timeStr;
+      const hour = parseInt(timeStr.split(':')[0]);
       if (hour < 11) type = 'Matin';
       else if (hour >= 12) type = 'Après-midi';
       else type = 'Cours';
