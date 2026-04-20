@@ -71,10 +71,13 @@ export async function parseExcelFile(file: File): Promise<ProcessedRecord[]> {
     
     if (!hasArrivalTime && !isRetardJustif) return;
 
+    const rawNom = String(getValue('Nom') || 'Inconnu');
+    const cleanedNom = rawNom.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+
     rawRecords.push({
       classe: String(getValue('Classe') || 'Inconnu'),
       niveau: String(getValue('Niveau') || 'Inconnu'),
-      nom: String(getValue('Nom') || 'Inconnu'),
+      nom: cleanedNom,
       debut,
       amPm: String(getValue('AM/PM') || 'AM-PM'),
       heureArrivee: hasArrivalTime ? String(heureArrivee) : undefined,

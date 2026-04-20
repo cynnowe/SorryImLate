@@ -159,6 +159,7 @@ export default function Dashboard() {
   const [selectedNiveau, setSelectedNiveau] = useState<string>("Toutes");
   const [selectedClasse, setSelectedClasse] = useState<string>("Toutes");
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const [customStart, setCustomStart] = useState<string>("");
   const [customEnd, setCustomEnd] = useState<string>("");
@@ -173,6 +174,7 @@ export default function Dashboard() {
       setSelectedNiveau("Toutes");
       setSelectedClasse("Toutes");
       setSelectedPeriod("all");
+      setSearchQuery("");
       setExpandedStudent(null);
     } catch (error) {
       console.error("Erreur lors de l'analyse du fichier :", error);
@@ -212,8 +214,13 @@ export default function Dashboard() {
       startDate: start,
       endDate: end,
     });
-    return computeStats(filtered);
-  }, [records, selectedNiveau, selectedClasse, selectedPeriod, customStart, customEnd]);
+    let computedStats = computeStats(filtered);
+    if (searchQuery.trim()) {
+      const lowerQuery = searchQuery.toLowerCase();
+      computedStats = computedStats.filter(s => s.nom.toLowerCase().includes(lowerQuery));
+    }
+    return computedStats;
+  }, [records, selectedNiveau, selectedClasse, selectedPeriod, customStart, customEnd, searchQuery]);
 
   const periodLabel = getPeriodLabel(selectedPeriod, customStart, customEnd);
 
@@ -271,9 +278,22 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
               <div className="flex items-center space-x-2 mb-6">
                 <Filter className="w-5 h-5 text-indigo-500" />
-                <h3 className="text-lg font-semibold">Filtres</h3>
+                <h3 className="text-lg font-semibold">Recherche et Filtres</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                    <Search className="w-4 h-4 text-slate-400" /> Élève
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Nom ou prénom..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white rounded-lg py-2.5 px-4 focus:ring-2 focus:ring-indigo-500 transition-colors"
+                  />
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Niveau</label>
                   <select
@@ -344,7 +364,7 @@ export default function Dashboard() {
                   className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-150"
                 >
                   <Printer className="w-4 h-4" />
-                  Exporter / Imprimer
+                  Imprimer la liste
                 </button>
               </div>
 
